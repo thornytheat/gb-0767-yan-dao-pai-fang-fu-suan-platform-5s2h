@@ -10,6 +10,7 @@ HEADERS = {
     'minutes': 'stack,timestamp,value,unit,basis,moisture,oxygen,status,revision,received'.split(','),
     'modes': 'stack,start,end,mode'.split(','),
     'reports': 'stack,hour,value,ticket'.split(','),
+    'receipts': 'stack,hour,receipt,event,value,ticket,received'.split(','),
 }
 
 

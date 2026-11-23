@@ -56,8 +56,12 @@ class Inspection:
 
     @cached_property
     def reports(self):
-        rows, isolated = compare(self.hours['rows'], self.ledgers['reports'][0], self.window)
-        return {'rows': rows, 'isolated': isolated, 'deviations': sum(row['code'] == 'DEVIATION' for row in rows)}
+        rows, isolated, receipt_isolated, receipt_stats = compare(
+            self.hours['rows'], self.ledgers['reports'][0], self.window,
+            self.ledgers['receipts'][0])
+        return {'rows': rows, 'isolated': isolated, 'receipt_isolated': receipt_isolated,
+                'receipt_stats': receipt_stats,
+                'deviations': sum(row['code'] == 'DEVIATION' for row in rows)}
 
     def results(self):
         return {stage: getattr(self, stage) for stage in STAGES}

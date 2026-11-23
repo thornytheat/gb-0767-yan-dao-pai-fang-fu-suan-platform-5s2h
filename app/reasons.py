@@ -9,4 +9,8 @@ LABELS = {
     'EXEMPT': '工况免计', 'VALID': '采信有效', 'INSUFFICIENT': '有效分钟不足',
     'MATCH': '容差内', 'DEVIATION': '超过容差', 'NO_REPORT': '未找到报送',
     'NO_REFERENCE': '无可比小时值', 'REPORT_CONFLICT': '报送值冲突', 'OUTSIDE_REPORT': '报送超窗',
+    'BAD_EVENT': '回执事件无效', 'WITHDRAW_HAS_VALUE': '撤回回执不得带新值',
+    'BAD_RECEIPT': '回执号或单据号无效', 'RECEIPT_CONFLICT': '同号回执内容冲突',
+    'UNKNOWN_TICKET': '回执找不到原报送单据', 'RECEIPT_HOUR_MISMATCH': '回执小时与单据不符',
+    'ACCEPT': '更正受理', 'WITHDRAW': '监管撤回',
 }

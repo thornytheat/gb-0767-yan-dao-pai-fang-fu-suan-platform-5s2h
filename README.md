@@ -23,9 +23,10 @@ python -m pytest -q
 1. 选择「异常与迟补样例」，首页应测为 120，显示有效 91、工况免计 8、缺证 21。
 2. 在「分钟有效性裁决」选「仅缺证」，查看氧量超界、同版冲突和仪器校准。工况重叠分钟在两份记录间以停机优先。
 3. 在「报送差异对账」核对 08:00 复算 30.50、报送 29.75、差额 +0.75 mg/Nm³。09:00 的 44 个有效分钟低于 45 门槛。
-4. 点击「归档复算」并重跑。相同原件复用运行编号。在「监测证据签发」下载带输入摘要、原值、裁决与勾稽的 JSON。
+4. 交班时若更正回执尚未被监管端受理（污样回执均晚于收件截止），差额仍按已受理旧单 R-801 计算，页面逐小时交代采用单据与回执依据；同号回执重试只登记一次。晚到回执补齐或监管端撤回受理后，用同一小时原件加新回执重新归档对账，旧批次证据仍定格当时单据。
+5. 点击「归档复算」并重跑。相同原件复用运行编号。在「监测证据签发」下载带输入摘要、原值、裁决与勾稽的 JSON。
 
-五个预览接口均为 `GET /api/samples/{dirty|clean}/{stage}`，各工序按需计算；`stage` 值见深度登记。自有数据通过 `POST /api/runs` 的 `files` 对象提交字符串 `window`、`minutes`、`modes`、`reports`，也可提交 `{"sample":"dirty"}`。`GET /api/runs/{id}/{stage}` 查询归档，每次归档仅写入一个 SQLite 事务。`GET /api/runs` 列出历史，`GET /api/export/{id}` 签发证据。
+五个预览接口均为 `GET /api/samples/{dirty|clean}/{stage}`，各工序按需计算；`stage` 值见深度登记。自有数据通过 `POST /api/runs` 的 `files` 对象提交字符串 `window`、`minutes`、`modes`、`reports`，以及可选的监管回执 `receipts`（省略时按无回执对账），也可提交 `{"sample":"dirty"}`。`GET /api/runs/{id}/{stage}` 查询归档，每次归档仅写入一个 SQLite 事务。`GET /api/runs` 列出历史，`GET /api/export/{id}` 签发证据。
 
 - [数据定义与计算边界](docs/DATA-DICTIONARY.md)
 - [模块与陷阱验证](docs/DEPTH.md)

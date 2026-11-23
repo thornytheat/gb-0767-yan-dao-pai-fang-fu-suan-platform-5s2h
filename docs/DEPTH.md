@@ -11,7 +11,7 @@
 | M2 干基与参比氧折算 | 核对修订、单位和折算值 | `GET /api/samples/dirty/oxygen` | `app/monitor/oxygen.py` `app/monitor/revision.py` | `tests/test_oxygen.py` |
 | M3 分钟有效性裁决 | 按分钟查看有效、免计与缺证 | `GET /api/samples/dirty/validity` | `app/monitor/validity.py` `app/monitor/modes.py` | `tests/test_validity.py` |
 | M4 小时汇总复算 | 比对有效分钟门槛和小时均值 | `GET /api/samples/dirty/hours` | `app/monitor/hours.py` | `tests/test_hours.py` |
-| M5 报送差异对账 | 核对差值、单据和游离报送 | `GET /api/samples/dirty/reports` | `app/monitor/reconcile.py` `app/monitor/reports.py` | `tests/test_reports.py` |
+| M5 报送差异对账 | 核对差值、单据、回执依据和游离报送 | `GET /api/samples/dirty/reports` | `app/monitor/reconcile.py` `app/monitor/reports.py` `app/monitor/receipts.py` | `tests/test_reports.py` `tests/test_receipts.py` |
 | M6 批次留档复跑 | 汇总归档、并发复跑和查看历史 | `POST /api/runs` | `app/archive/run.py` `app/archive/store.py` | `tests/test_runs.py` |
 | M7 监测证据签发 | 下载和校验原件、摘要和判据 | `GET /api/export/{id}` | `app/archive/certificate.py` | `tests/test_evidence.py` |
 
@@ -30,12 +30,18 @@
 | TRAP-15 | mg、g、µg 混测 | 数量级错误 | 单位系数归一 | `app/monitor/oxygen.py` | `tests/test_oxygen.py::test_units` |
 | TRAP-19 | 启停工况重叠 | 重复免计或顺序覆盖 | 并集与停机优先 | `app/monitor/modes.py` | `tests/test_validity.py::test_overlap_priority` |
 | TRAP-23 | 末端分钟 | 多免计一分钟 | 半开区间 | `app/monitor/modes.py` | `tests/test_validity.py::test_half_open` |
+| TRAP-26 | 更正回执晚于截止 | 按新值误报差额 | 截止前才采信，交班沿用已受理旧单 | `app/monitor/receipts.py` | `tests/test_receipts.py::test_late_accepted_correction_keeps_old_ticket_value` |
+| TRAP-27 | 同一次回执重试 | 重复登记更正 | 回执号归组，重试件隔离 `DUPLICATE` | `app/monitor/receipts.py` | `tests/test_receipts.py::test_retry_same_receipt_registers_once` |
+| TRAP-28 | 监管撤回受理 | 撤回单仍计入对账 | `WITHDRAW` 使单据失效，小时回到 `NO_REPORT` | `app/monitor/receipts.py` | `tests/test_receipts.py::test_withdrawn_acceptance_leaves_hour_without_report` |
 
 ## 对账规则
 
 - 污样分钟源 109 条记录 = 可读 107 + 重复表头 1 + 结构隔离 1。
 - 120 个应测分钟 = 91 有效 + 8 工况免计 + 21 缺证。参比氧复算与报送按小时核对。
 - 内容摘要与规则版本组成留档键，原件和计算结果同事务存储，重复提交复用原清单。
+- 交班对账以"已受理且未撤回"的最新单据值计差额：回执晚于 `cutoff` 不采信，污样 08:00 仍按 R-801 原值 29.75 得差额 +0.75；回执在截止前受理后改用回执新值，撤回则该小时无报送。
+- 回执登记计数 = 输入、登记、重试去重、隔离；同号冲突、未知单据、小时不符、撤回带值、坏数值全部保留原件行进隔离表。
+- 回执补齐或撤回后重新归档产生新批次；旧批次证据包（含当时回执缺位）不可变，仍可逐行核验。
 
 ## 已知边界
 
